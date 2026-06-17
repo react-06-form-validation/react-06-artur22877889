@@ -3,3 +3,9 @@
     font-size: 0.875rem;
     margin-top: 0.2rem;
 }
+
+.error {
+  color: #e11d48;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}

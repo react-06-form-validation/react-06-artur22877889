@@ -1,20 +1,46 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * Builds the Zod schema for the booking form.
- *
- * TODO: implement the validation rules described in README.md → "Form Fields & Validation Rules":
- *  - bookerName: string, required, min 2 characters
- *  - bookerEmail: string, optional, must be a valid email when provided (empty string is allowed)
- *  - eventName: string, required, min 2 characters
- *  - eventDate: required, must be a future date
- *  - numberOfGuests: number, required, integer, min 1, max 10
- *  - timeSlot: string, required, must be one of `availableTimeSlots`
- *  - eventLink: string, required, must be a valid URL
  *
  * @param {string[]} availableTimeSlots - time slots fetched from `/api/time-slots`
  */
 export const createBookingSchema = (availableTimeSlots = []) =>
   z.object({
-    // TODO: define field validations here
+    bookerName: z
+      .string()
+      .min(2, "Booker name must be at least 2 characters"),
+
+    bookerEmail: z
+      .string()
+      .email("Invalid email format")
+      .optional()
+      .or(z.literal("")),
+
+    eventName: z
+      .string()
+      .min(2, "Event name must be at least 2 characters"),
+
+    eventDate: z
+      .coerce
+      .date()
+      .refine((date) => date > new Date(), {
+        message: "Event date must be in the future",
+      }),
+
+    numberOfGuests: z
+      .number({ invalid_type_error: "Number of guests is required" })
+      .int("Must be an integer")
+      .min(1, "Minimum 1 guest")
+      .max(10, "Maximum 10 guests"),
+
+    timeSlot: z
+      .string()
+      .refine((val) => availableTimeSlots.includes(val), {
+        message: "Please select a valid time slot",
+      }),
+
+    eventLink: z
+      .string()
+      .url("Must be a valid URL"),
   });
